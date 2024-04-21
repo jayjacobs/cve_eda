@@ -21,16 +21,16 @@ so the `container.cna.` portion is truncated.
 
  * `JSON Field` is the compound name of the JSON data element
  * `CVEs` count of unique CVE identifiers with the `JSON Field`
- * `CVE\nPercent` percent of total CVEs 
+ * `CVE Percent` percent of total CVEs 
  * `CNAs` count of unique CNA short names providing the `JSON Field`
- * `CNA\nPercent`  percent of total CVEs 
- * `JSON Type\nDiscovered` the type of json data present in the data 
+ * `CNA Percent`  percent of total CVEs 
+ * `JSON Type Discovered` the type of json data present in the data 
  * `JSON Schema` what the JSON schema defines the data to be, if this is not present there is no definition of the `JSON Field" in the JSON schema. 
  
 
 
 
-![Affected JSON]("figs/cna_affected/affected_counts_table.png")
+![Affected JSON](figs/cna_affected/affected_counts_table.png)
 
 
 
@@ -44,7 +44,7 @@ and this code looks for anything specified in the "versions" object while ignori
 
 
 
-![vpv completeness]("figs/cna_affected/vpv_completeness.png")
+![vpv completeness](figs/cna_affected/vpv_completeness.png)
 
 
 
@@ -58,7 +58,7 @@ CPE Dict 2.3 has 21,666 unique vendors and 134,552 unique combinations of vendor
 
 
 
-![cna_vpv_matching_cpe]("figs/cna_affected/cpe_matching_to_CVEs.png")
+![cna_vpv_matching_cpe](figs/cna_affected/cpe_matching_to_CVEs.png)
 
 ## When are CVEs published with vendor, product and version (VPV)?
 
@@ -68,7 +68,7 @@ just that something in present. Again, the `containers.cna.affected.versions.sta
 
 
 
-![prod vend version]("figs/cna_affected/monpct.prod_vend_version.png")
+![prod vend version](figs/cna_affected/monpct.prod_vend_version.png)
 
 ## Which CNAs are published more complete VPV values? 
 
@@ -80,46 +80,46 @@ Take note just how many CNAs are across the bottom (or the lack of CNAs at the b
 
 
 
-![vpv complete by cna]("figs/cna_affected/vpv_complete_by_cna.png")
+![vpv complete by cna](figs/cna_affected/vpv_complete_by_cna.png)
 
 ## Timing of complete VPV records without CVEs published by MITRE 
 
 
 
-![product vendor and version by month]("figs/cna_affected/monpct.prod_vend_version.png")
+![product vendor and version by month](figs/cna_affected/monpct.prod_vend_version.png)
 
 
 # collection URL
 
 
 
-![monthly percent of collect url]("figs/cna_affected/monpct.containers.cna.affected.collectionURL.png")
+![monthly percent of collect url](figs/cna_affected/monpct.containers.cna.affected.collectionURL.png)
 
 
 
 
-![percent of CNA with of collection url]("figs/cna_affected/cnapct.affected.collectionURL.png")
+![percent of CNA with of collection url](figs/cna_affected/cnapct.affected.collectionURL.png)
 
 
 
 
-![percent of CNA since 2020 with of collection url]("figs/cna_affected/cnapct2020.affected.collectionURL.png")
+![percent of CNA since 2020 with of collection url](figs/cna_affected/cnapct2020.affected.collectionURL.png)
 
 
 
-![uniq fields in collectionURL by CNA]("figs/cna_affected/cna_uniq.affected.collectionURL.png")
+![uniq fields in collectionURL by CNA](figs/cna_affected/cna_uniq.affected.collectionURL.png)
 
 ## affected.cpes
 
 
 
-![uniq fields in collectionURL by CNA]("figs/cna_affected/monpct.affected.cpes.png")
+![uniq fields in collectionURL by CNA](figs/cna_affected/monpct.affected.cpes.png)
 
 
 
-![percent by cna for `curfield`](figs/cna_affected/cnapct_affected.cpes)
+![percent by cna for `curfield`](figs/cna_affected/cnapct_affected.cpes.png)
 
 
 
-![percent by cna of `curfield`](figs/cna_affected/cnapct_affected.cpes)
+![percent by cna of `curfield`](figs/cna_affected/cnapct_affected.cpes.png)
 
