@@ -1,0 +1,9 @@
+.Rproj.user
+.Rhistory
+*.pass
+.httr-oauth
+*.html
+!*.nb.html
+logs
+spark-warehouse
+.DS_Store
