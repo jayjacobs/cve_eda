@@ -69,6 +69,7 @@ update_geom_defaults('point', list(size=0.5, color=tab('blue')))
 update_geom_defaults('line', list(color=tab('blue'), size=0.85))
 
 knitr::opts_chunk$set(
+  cache = FALSE,
   message = FALSE,
   warning = FALSE, 
   dev = c("png", "cairo_pdf"),
@@ -116,6 +117,23 @@ savepic <- function (grob = last_plot(), filename, width = NULL, height = NULL,
   invisible(fs::path_norm(paste0(filename, ".png")))
 }
 
+mklab <- function (x, bytes = FALSE) {
+    brate <- tibble(cut = c(10^seq(3, 24, 3), Inf), suffix = c("0", 
+        "K", "M", "B", "T", "q", "Q", "s", "S"))
+    if (bytes) {
+        brate <- tibble(cut = c(1024^seq(8), Inf), suffix = c("0", 
+            "kB", "MB", "GB", "TB", "PB", "EB", "ZB", "YB"))
+    }
+    pickup <- tibble(x = x) %>% mutate(one = cut(x, breaks = c(-Inf, 
+        brate$cut), labels = brate$suffix, right = FALSE)) %>% 
+        mutate(two = x/sapply(.data$one, function(y) lag(brate$cut)[y])) %>% 
+        mutate(three = ifelse(.data$two < 10, as.character(round(.data$two, 
+            1)), as.character(round(.data$two, 0)))) %>% mutate(three = ifelse(is.na(.data$three), 
+        as.character(round(.data$x, 0)), paste0(.data$three, 
+            .data$one))) %>% mutate(four = ifelse(x < 1, x, .data$three))
+    pickup$four
+}
+
 ```
 
 
@@ -146,6 +164,19 @@ expected <- c("affected" = 'array of product',
               "affected.versions.changes.status" = 'array of objects') %>% enframe(name="name", value="expected")
 ```
 
+# Detailed view of Affected Products (container.cna.affected)
+
+This view is specifically focused on `container.cna.affected`.  The table below shortened all of the variables
+so the `container.cna.` portion is truncated. 
+
+ * `JSON Field` is the compound name of the JSON data element
+ * `CVEs` count of unique CVE identifiers with the `JSON Field`
+ * `CVE\nPercent` percent of total CVEs 
+ * `CNAs` count of unique CNA short names providing the `JSON Field`
+ * `CNA\nPercent`  percent of total CVEs 
+ * `JSON Type\nDiscovered` the type of json data present in the data 
+ * `JSON Schema` what the JSON schema defines the data to be, if this is not present there is no definition of the `JSON Field" in the JSON schema. 
+ 
 
 ```{r}
 cves <- read_parquet(here("cache/cveparse/cves.parquet")) %>% 
@@ -253,8 +284,8 @@ gtable <- toshare %>%
   if (!dir.exists(here("figs", params$img_slug))) {
     dir.create(here("figs", params$img_slug), recursive = TRUE, mode="0755")
   }
-  rez <- gtsave(gtable, here::here("figs", params$img_slug, "affected_counts_table.png"))
-
+  rez <- gtsave(gtable, here::here("figs", params$img_slug, "affected_counts_table.png"),
+                vwidth = 992, vheight=544)
   knitr::include_graphics(rez)
   
 
@@ -276,7 +307,13 @@ versions <- one %>%
 
 ```
 
-# Affected Vendor, Product 
+## Affected vendor, product, version and/or package name or repository. 
+
+These fields represent the minimum necessary to identify the vulnerable product(s) or software. The table below identifies 
+How many CVEs and CNAs have non-null values in the field. One thing to note: the "version" is represented by a JSON object 
+and this code looks for anything specified in the "versions" object while ignoring the 
+`containers.cna.affected.versions.status` since almost every record had that value with nothing else specified in this section. 
+
 
 ```{r fig.width=5, fig.height=3}
 one <- affdata %>% 
@@ -330,7 +367,7 @@ if(!file.exists(here("cache", "cpe_dict_2.3.parquet"))) {
     cpefile <- "https://nvd.nist.gov/feeds/xml/cpe/dictionary/official-cpe-dictionary_v2.3.xml.gz"
     download.file(cpefile, destfile = here("data", basename(cpefile)))
   }
-  # may take some time 
+  # may take some time, but trust me, reading and parsing raw xml is easier than loading the xml object.
   cpedict <- tibble(x=read_lines(here("data", "official-cpe-dictionary_v2.3.xml.gz"))) %>% 
     filter(str_detect(x, '<cpe-23:cpe23-item name="')) %>% 
     mutate(x = str_replace(x, "    <cpe-23:cpe23-item name=\"", ""),
@@ -348,6 +385,11 @@ uniq_vendor <- cpedict %>% distinct(vendor) %>% nrow() %>% comma()
 uniq_vendor_product <- cpedict %>% distinct(vendor, product) %>% nrow() %>% comma()
 
 ```
+
+
+## Are the vendor and product defined in the CPE dictionary? 
+
+This grabs the CPE dictionary from [NVD](https://nvd.nist.gov/feeds/xml/cpe/dictionary/official-cpe-dictionary_v2.3.xml.gz) and will first check the value provided "as is" against the same value in the CPE dictionary. Second, it does a case-insensitive match against the defined values in the CPE. 
 
 CPE Dict 2.3 has `r uniq_vendor` unique vendors and `r uniq_vendor_product` unique combinations of vendor and product. 
 
@@ -473,6 +515,143 @@ savepic(gg, here::here("figs", params$img_slug, "cpe_matching_to_CVEs"),
         height = 3, width = 7, open = FALSE, caption=FALSE, dpi=300) %>%
   knitr::include_graphics()
 ```
+
+## When are CVEs published with vendor, product and version (VPV)?
+
+This next plot treats a "complete" record if any of the "affected" records has a value
+in the `vendor` AND `product` AND `versions`. It is not inspecting those fields for quality, 
+just that something in present. Again, the `containers.cna.affected.versions.status` is being ignored. 
+
+```{r}
+toplot <- one %>% 
+  select(cve, 
+         vendor = containers.cna.affected.vendor, 
+         product=containers.cna.affected.product) %>% 
+  left_join(versions, by="cve") %>%
+  rename(version = containers.cna.affected.versions) %>% 
+  mutate(across(.cols = c(-cve), function(x) ifelse(is.na(x), 0, 1))) |> 
+  filter(product == 1 & vendor == 1 & version == 1) %>% 
+  distinct(cve) %>% 
+  mutate(has_affected = "yes") %>% 
+  right_join(cvepub, by="cve") %>% 
+  replace_na(list(has_affected = "no")) %>% 
+  mutate(month = floor_date(published, unit="month")) %>% 
+  left_join(cvecna, by="cve") %>% 
+  # filter(cna != "mitre") %>% 
+  count(has_affected, month) %>% 
+  spread(has_affected, n, fill = 0) %>% 
+  mutate(total = no + yes) %>% 
+  # select(cna, x=yes, n=total) %>% 
+  mutate(pct = yes / total) %>% 
+  mutate(colfill = ifelse(pct > 0, tab("red"), tab("blue")))
+
+gg <- ggplot(toplot, aes(month, pct, color=colfill)) + 
+  geom_point() + 
+  scale_color_identity() +
+  scale_y_continuous("Percent of published CVEs", label=label_percent(1), limits=c(0,1),
+                     breaks=seq(0,1,0.2), 
+                     expand=expansion(mult=c(0,0.01))) +
+  scale_x_date("CVE Published (monthly)", date_breaks = "1 year", date_labels = "%Y") +
+  labs(title = paste("Percent of Published CVEs with value in Vendor, Product and Version (all CNAs)")) +
+  theme(plot.title = element_text(family=mainfont, face="italic", size=11))
+
+savepic(gg, here::here("figs", params$img_slug, "monpct.prod_vend_version"), 
+        height = 3.5, width = 7, open = FALSE, caption=TRUE, dpi=300) %>%
+  knitr::include_graphics()
+```
+
+## Which CNAs are published more complete VPV values? 
+
+This looks at the percent of CVEs with a complete VPV record from each CNA and compares against the total number of CVEs from that CNA. 
+
+Take note just how many CNAs are across the bottom (or the lack of CNAs at the bottom). This indicates that almost every CNA has been able to produce a complete VPV record. 
+
+`mitre` as a CNA really sticks out here. 
+
+```{r}
+toplot <- one %>% 
+  select(cve, 
+         vendor = containers.cna.affected.vendor, 
+         product=containers.cna.affected.product) %>% 
+  left_join(versions, by="cve") %>%
+  rename(version = containers.cna.affected.versions) %>% 
+  mutate(across(.cols = c(-cve), function(x) ifelse(is.na(x), 0, 1))) |> 
+  filter(product == 1, vendor == 1, version == 1) %>% 
+  distinct(cve) %>% 
+  mutate(has_affected = "yes") %>% 
+  right_join(cvepub, by="cve") %>% 
+  replace_na(list(has_affected = "no")) %>% 
+  left_join(cvecna, by="cve") %>%
+  count(has_affected, cna) %>% 
+  spread(has_affected, n, fill = 0) %>% 
+  mutate(total = no + yes) %>% 
+  select(cna, x=yes, n=total) %>%
+  mutate(pct = x / n) %>%
+  mutate(colfill = ifelse(pct > 0, tab("red"), tab("blue")))
+
+txtlab <- toplot %>% filter(x > 0 & n > 100)
+
+gg <- ggplot(toplot, aes(n, pct, label=cna)) +
+  geom_text_repel(data=txtlab, color="gray40", segment.color="gray80",
+                  size=6/.pt, family=mainfont, 
+                  point.padding = 0, box.padding=0.05) +
+  geom_point() +
+  scale_y_continuous("Percent of VPV CVEs (by CNA)", label=label_percent(1), limits=c(0,1),
+                     breaks=seq(0,1,0.2), 
+                     expand=expansion(mult=c(0,0.01))) +
+  labs(title = paste("Percent of Published CVEs by CNA, with value in Vendor, Product and Version (VPV)")) +
+  scale_x_log10("CVEs Published by CNA", label=mklab,
+                breaks=10^seq(0,10), 
+                minor_breaks=seq(1,9) * rep(10^seq(-5,10), each=9), 
+                expand=expansion(mult=c(0.01, 0.01))) +
+
+  theme(plot.title = element_text(family=mainfont, face="italic", size=11))
+
+savepic(gg, here::here("figs", params$img_slug, "vpv_complete_by_cna"), 
+        height = 3.5, width = 7, open = FALSE, caption=FALSE, dpi=300) %>%
+  knitr::include_graphics()
+```
+
+## Timing of complete VPV records without CVEs published by MITRE 
+
+```{r}
+toplot <- one %>% 
+  select(cve, 
+         vendor = containers.cna.affected.vendor, 
+         product=containers.cna.affected.product) %>% 
+  left_join(versions, by="cve") %>%
+  rename(version = containers.cna.affected.versions) %>% 
+  mutate(across(.cols = c(-cve), function(x) ifelse(is.na(x), 0, 1))) |> 
+  filter(product == 1 & vendor == 1 & version == 1) %>% 
+  distinct(cve) %>% 
+  mutate(has_affected = "yes") %>% 
+  right_join(cvepub, by="cve") %>% 
+  replace_na(list(has_affected = "no")) %>% 
+  mutate(month = floor_date(published, unit="month")) %>% 
+  left_join(cvecna, by="cve") %>% 
+  filter(cna != "mitre") %>%
+  count(has_affected, month) %>% 
+  spread(has_affected, n, fill = 0) %>% 
+  mutate(total = no + yes) %>% 
+  # select(cna, x=yes, n=total) %>% 
+  mutate(pct = yes / total) %>% 
+  mutate(colfill = ifelse(pct > 0, tab("red"), tab("blue")))
+
+gg <- ggplot(toplot, aes(month, pct, color=colfill)) + 
+  geom_point() + 
+  scale_color_identity() +
+  scale_y_continuous("Percent of published CVEs ", label=label_percent(1), limits=c(0,1),
+                     breaks=seq(0,1,0.2), 
+                     expand=expansion(mult=c(0,0.01))) +
+  scale_x_date("CVE Published (monthly)", date_breaks = "1 year", date_labels = "%Y") +
+  labs(title = paste("Percent of Published CVEs (excluding all MITRE CVEs) with\nvalue in Vendor, Product and Version (all CNAs)")) +
+  theme(plot.title = element_text(family=mainfont, face="italic", size=11))
+
+savepic(gg, here::here("figs", params$img_slug, "monpct.prod_vend_version"), 
+        height = 3.5, width = 7, open = FALSE, caption=TRUE, dpi=300) %>%
+  knitr::include_graphics()
+```
+
 
 # collection URL
 
