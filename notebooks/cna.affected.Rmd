@@ -1,6 +1,6 @@
 ---
 params:
-  img_slug: "cve_affected"
+  img_slug: "cna_affected"
 output:
   github_document:
     toc: FALSE
@@ -266,31 +266,32 @@ gtable <- toshare %>%
          `CVEs` = cves,
          `CVE\nPercent`,
          `CNAs` = cnas,
-          `CNA\nPercent`,
+         `CNA\nPercent`,
          # `Instances` = count,
          `JSON Type\nDiscovered` = type,
          `JSON Schema` = expected) %>% 
   replace_na(list(`JSON Schema` = " ")) %>% 
   gt() |> 
-    tab_header(
+  tab_header(
     title = "CNA containers for \"affected\"",
     subtitle = paste(cves %>% distinct(cve) %>% nrow() %>% comma, 
                      "CVEs from", comma(totalcna), "CNAs as of ", 
                      as.Date(max(cves$cveMetadata.datePublished, na.rm = TRUE)))) |>
   fmt_number(columns = c(CVEs, CNAs), decimals=0, suffixing = FALSE) |> 
   fmt_percent(columns = c(`CVE\nPercent`, `CNA\nPercent`), decimals = 1)
-  # cves %>% distinct(cve) %>% nrow
+# cves %>% distinct(cve) %>% nrow
 
-  if (!dir.exists(here("figs", params$img_slug))) {
-    dir.create(here("figs", params$img_slug), recursive = TRUE, mode="0755")
-  }
-  rez <- gtsave(gtable, here::here("figs", params$img_slug, "affected_counts_table.png"),
-                vwidth = 992, vheight=544)
-  knitr::include_graphics(rez)
-  
+if (!dir.exists(here("figs", "cna_affected"))) {
+  dir.create(here("figs", "cna_affected"), recursive = TRUE, mode="0755")
+}
+rez <- gtsave(gtable, here::here("figs", "cna_affected", "affected_counts_table.png"),
+              vwidth = 992, vheight=544)
+# knitr::include_graphics(rez)
+# 
 
 ```
 
+![Affected JSON]("figs/cna_affected/affected_counts_table.png")
 
 ```{r}
 one <- affdata %>% 
@@ -356,10 +357,12 @@ gg <- ggplot(tocna, aes(cat, id, fill=filler, label=txt)) +
   theme(axis.text.y = element_blank(),
         axis.title.y = element_blank(),
         axis.title.x = element_blank())
-savepic(gg, here::here("figs", params$img_slug, "filename"), 
-        height = 3, width = 5, open = FALSE, caption=FALSE, dpi=300) %>%
-  knitr::include_graphics()
+savepic(gg, here::here("figs", "cna_affected", "vpv_completeness"), 
+        height = 3, width = 5, open = FALSE, caption=FALSE, dpi=300)
 ```
+
+![vpv completeness]("figs/cna_affected/vpv_completeness.png")
+
 
 ```{r}
 if(!file.exists(here("cache", "cpe_dict_2.3.parquet"))) {
@@ -511,10 +514,11 @@ gg <- ggplot(toplot, aes(x=pct, y=match, fill=match, label=txt)) +
         panel.grid = element_blank(),
         strip.placement = "outside",
         axis.title.y = element_blank())
-savepic(gg, here::here("figs", params$img_slug, "cpe_matching_to_CVEs"), 
-        height = 3, width = 7, open = FALSE, caption=FALSE, dpi=300) %>%
-  knitr::include_graphics()
+savepic(gg, here::here("figs", "cna_affected", "cpe_matching_to_CVEs"), 
+        height = 3, width = 7, open = FALSE, caption=FALSE, dpi=300)
 ```
+
+![cna_vpv_matching_cpe]("figs/cna_affected/cpe_matching_to_CVEs.png")
 
 ## When are CVEs published with vendor, product and version (VPV)?
 
@@ -555,10 +559,11 @@ gg <- ggplot(toplot, aes(month, pct, color=colfill)) +
   labs(title = paste("Percent of Published CVEs with value in Vendor, Product and Version (all CNAs)")) +
   theme(plot.title = element_text(family=mainfont, face="italic", size=11))
 
-savepic(gg, here::here("figs", params$img_slug, "monpct.prod_vend_version"), 
-        height = 3.5, width = 7, open = FALSE, caption=TRUE, dpi=300) %>%
-  knitr::include_graphics()
+savepic(gg, here::here("figs", "cna_affected", "monpct.prod_vend_version"), 
+        height = 3.5, width = 7, open = FALSE, caption=TRUE, dpi=300)
 ```
+
+![prod vend version]("figs/cna_affected/monpct.prod_vend_version.png")
 
 ## Which CNAs are published more complete VPV values? 
 
@@ -607,10 +612,11 @@ gg <- ggplot(toplot, aes(n, pct, label=cna)) +
 
   theme(plot.title = element_text(family=mainfont, face="italic", size=11))
 
-savepic(gg, here::here("figs", params$img_slug, "vpv_complete_by_cna"), 
-        height = 3.5, width = 7, open = FALSE, caption=FALSE, dpi=300) %>%
-  knitr::include_graphics()
+savepic(gg, here::here("figs", "cna_affected", "vpv_complete_by_cna"), 
+        height = 3.5, width = 7, open = FALSE, caption=FALSE, dpi=300)
 ```
+
+![vpv complete by cna]("figs/cna_affected/vpv_complete_by_cna.png")
 
 ## Timing of complete VPV records without CVEs published by MITRE 
 
@@ -647,10 +653,11 @@ gg <- ggplot(toplot, aes(month, pct, color=colfill)) +
   labs(title = paste("Percent of Published CVEs (excluding all MITRE CVEs) with\nvalue in Vendor, Product and Version (all CNAs)")) +
   theme(plot.title = element_text(family=mainfont, face="italic", size=11))
 
-savepic(gg, here::here("figs", params$img_slug, "monpct.prod_vend_version"), 
-        height = 3.5, width = 7, open = FALSE, caption=TRUE, dpi=300) %>%
-  knitr::include_graphics()
+savepic(gg, here::here("figs", "cna_affected", "monpct.prod_vend_version"), 
+        height = 3.5, width = 7, open = FALSE, caption=TRUE, dpi=300)
 ```
+
+![product vendor and version by month]("figs/cna_affected/monpct.prod_vend_version.png")
 
 
 # collection URL
@@ -681,10 +688,12 @@ gg <- ggplot(url_pub, aes(month, pct, color=colfill)) +
   scale_x_date("CVE Published (monthly)", date_breaks = "1 year", date_labels = "%Y") +
   labs(title = paste("Percent of Published CVEs with values in", curfield)) +
   theme(plot.title = element_text(family=mainfont, face="italic", size=11))
-savepic(gg, here::here("figs", params$img_slug, "monpct.containers.cna.affected.collectionURL"), 
-        height = 3.5, width = 7, open = FALSE, caption=TRUE, dpi=300) %>%
-  knitr::include_graphics()
+savepic(gg, here::here("figs", "cna_affected", "monpct.containers.cna.affected.collectionURL"), 
+        height = 3.5, width = 7, open = FALSE, caption=TRUE, dpi=300)
 ```
+
+![monthly percent of collect url]("figs/cna_affected/monpct.containers.cna.affected.collectionURL.png")
+
 
 ```{r}
 toplot <- one %>% 
@@ -727,10 +736,12 @@ gg <- ggplot(toplot, aes(n, pct, label=cna)) +
   # scale_x_log10("Total Published CVEs by CNA", label=mklab) +
   # scale_y_continuous("Percent of published CVES with field", label=label_percent(1))
 
-savepic(gg, here::here("figs", params$img_slug, "cnapct.affected.collectionURL"), 
-        height = 4, width = 7, open = FALSE, caption=TRUE, dpi=300) %>%
-  knitr::include_graphics()
+savepic(gg, here::here("figs", "cna_affected", "cnapct.affected.collectionURL"), 
+        height = 4, width = 7, open = FALSE, caption=TRUE, dpi=300)
 ```
+
+![percent of CNA with of collection url]("figs/cna_affected/cnapct.affected.collectionURL.png")
+
 
 ```{r}
 newcna <- cvecna %>% left_join(cvepub, by="cve") %>% 
@@ -773,11 +784,12 @@ gg <- ggplot(toplot, aes(n, pct, label=cna)) +
   theme(panel.grid = element_line(color="gray95"),
         plot.title = element_text(family=mainfont, face="italic", size=11))
 
-savepic(gg, here::here("figs", params$img_slug, "cnapct2020.affected.collectionURL"), 
-        height = 4, width = 7, open = FALSE, caption=TRUE, dpi=300) %>%
-  knitr::include_graphics()
+savepic(gg, here::here("figs", "cna_affected", "cnapct2020.affected.collectionURL"), 
+        height = 4, width = 7, open = FALSE, caption=TRUE, dpi=300)
 
 ```
+
+![percent of CNA since 2020 with of collection url]("figs/cna_affected/cnapct2020.affected.collectionURL.png")
 
 ```{r}
 newcna <- cvecna %>% left_join(cvepub, by="cve") %>% 
@@ -820,12 +832,11 @@ gg <- ggplot(toplot, aes(n, pct, label=cna)) +
   labs(title = paste("Percent of unique values:", curfield)) +
   theme(panel.grid = element_line(color="gray95"),
         plot.title = element_text(family=mainfont, face="italic", size=11))
-savepic(gg, here::here("figs", params$img_slug, "cna_uniq.affected.collectionURL"), 
-        height = 3.5, width = 7, open = FALSE, caption=TRUE, dpi=300) %>%
-  knitr::include_graphics()
-
-
+savepic(gg, here::here("figs", "cna_affected", "cna_uniq.affected.collectionURL"), 
+        height = 3.5, width = 7, open = FALSE, caption=TRUE, dpi=300) 
 ```
+
+![uniq fields in collectionURL by CNA]("figs/cna_affected/cna_uniq.affected.collectionURL.png")
 
 ## affected.cpes
 
@@ -852,11 +863,12 @@ gg <- ggplot(url_pub, aes(month, pct, color=colfill)) +
   scale_x_date("CVE Published (monthly)", date_breaks = "1 year", date_labels = "%Y") +
   labs(title = paste("Percent of Published CVEs with values in", curfield)) +
   theme(plot.title = element_text(family=mainfont, face="italic", size=11))
-savepic(gg, here::here("figs", params$img_slug, "monpct.affected.cpes"), 
-        height = 3.5, width = 7, open = FALSE, caption=TRUE, dpi=300) %>%
-  knitr::include_graphics()
+savepic(gg, here::here("figs", "cna_affected", "monpct.affected.cpes"), 
+        height = 3.5, width = 7, open = FALSE, caption=TRUE, dpi=300)
 
 ```
+
+![uniq fields in collectionURL by CNA]("figs/cna_affected/monpct.affected.cpes.png")
 
 ```{r}
 toplot <- one %>% 
@@ -893,17 +905,14 @@ gg <- ggplot(toplot, aes(n, pct, label=cna)) +
   labs(title = paste("Percent of Published CVEs by CNAs with values:", curfield)) +
   theme(panel.grid = element_line(color="gray95"),
         plot.title = element_text(family=mainfont, face="italic", size=11))
-  # geom_text_repel(size=6/.pt, family=mainfont, segment.color="gray80",
-  #                 point.padding = 0, box.padding=0.05) +
-  # geom_point() +
-  # scale_x_log10("Total Published CVEs by CNA", label=mklab) +
-  # scale_y_continuous("Percent of published CVES with field", label=label_percent(1))
 
-savepic(gg, here::here("figs", params$img_slug, 
-                       paste0("cnapct_", gsub("containers.cna.", "", curfield))), 
-        height = 4, width = 7, open = FALSE, caption=TRUE, dpi=300) %>%
-  knitr::include_graphics()
+fname <- paste0("cnapct_", gsub("containers.cna.", "", curfield))
+savepic(gg, here::here("figs", "cna_affected", fname),
+        height = 4, width = 7, open = FALSE, caption=TRUE, dpi=300)
+
 ```
+
+![percent by cna for `curfield`](`r paste0("figs/cna_affected/", fname)`)
 
 ```{r}
 newcna <- cvecna %>% left_join(cvepub, by="cve") %>% 
@@ -946,11 +955,12 @@ gg <- ggplot(toplot, aes(n, pct, label=cna)) +
   theme(panel.grid = element_line(color="gray95"),
         plot.title = element_text(family=mainfont, face="italic", size=11))
 
-savepic(gg, here::here("figs", params$img_slug, 
-                       paste0("cnapct_", gsub("containers.cna.", "", curfield))), 
-        height = 4, width = 7, open = FALSE, caption=TRUE, dpi=300) %>%
-  knitr::include_graphics()
+fname <- paste0("cnapct_", gsub("containers.cna.", "", curfield))
+
+savepic(gg, here::here("figs", "cna_affected", fname),
+        height = 4, width = 7, open = FALSE, caption=TRUE, dpi=300)
 
 ```
 
+![percent by cna of `curfield`](`r paste0("figs/cna_affected/", fname)`)
 

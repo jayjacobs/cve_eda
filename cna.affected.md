@@ -1,6 +1,6 @@
 ---
 params:
-  img_slug: "cve_affected"
+  img_slug: "cna_affected"
 output:
   github_document:
     toc: FALSE
@@ -29,18 +29,8 @@ so the `container.cna.` portion is truncated.
  
 
 
-```
-## Error in eval(expr, envir, enclos): object 'params' not found
-```
 
-```
-## Error in eval(expr, envir, enclos): object 'params' not found
-```
-
-```
-## Error in eval(expr, envir, enclos): object 'rez' not found
-```
-
+![Affected JSON]("figs/cna_affected/affected_counts_table.png")
 
 
 
@@ -53,9 +43,9 @@ and this code looks for anything specified in the "versions" object while ignori
 
 
 
-```
-## Error in eval(expr, envir, enclos): object 'params' not found
-```
+
+![vpv completeness]("figs/cna_affected/vpv_completeness.png")
+
 
 
 
@@ -67,9 +57,8 @@ This grabs the CPE dictionary from [NVD](https://nvd.nist.gov/feeds/xml/cpe/dict
 CPE Dict 2.3 has 21,666 unique vendors and 134,552 unique combinations of vendor and product. 
 
 
-```
-## Error in eval(expr, envir, enclos): object 'params' not found
-```
+
+![cna_vpv_matching_cpe]("figs/cna_affected/cpe_matching_to_CVEs.png")
 
 ## When are CVEs published with vendor, product and version (VPV)?
 
@@ -78,9 +67,8 @@ in the `vendor` AND `product` AND `versions`. It is not inspecting those fields 
 just that something in present. Again, the `containers.cna.affected.versions.status` is being ignored. 
 
 
-```
-## Error in eval(expr, envir, enclos): object 'params' not found
-```
+
+![prod vend version]("figs/cna_affected/monpct.prod_vend_version.png")
 
 ## Which CNAs are published more complete VPV values? 
 
@@ -91,55 +79,47 @@ Take note just how many CNAs are across the bottom (or the lack of CNAs at the b
 `mitre` as a CNA really sticks out here. 
 
 
-```
-## Error in eval(expr, envir, enclos): object 'params' not found
-```
+
+![vpv complete by cna]("figs/cna_affected/vpv_complete_by_cna.png")
 
 ## Timing of complete VPV records without CVEs published by MITRE 
 
 
-```
-## Error in eval(expr, envir, enclos): object 'params' not found
-```
+
+![product vendor and version by month]("figs/cna_affected/monpct.prod_vend_version.png")
 
 
 # collection URL
 
 
-```
-## Error in eval(expr, envir, enclos): object 'params' not found
-```
+
+![monthly percent of collect url]("figs/cna_affected/monpct.containers.cna.affected.collectionURL.png")
 
 
-```
-## Error in eval(expr, envir, enclos): object 'params' not found
-```
 
 
-```
-## Error in eval(expr, envir, enclos): object 'params' not found
-```
+![percent of CNA with of collection url]("figs/cna_affected/cnapct.affected.collectionURL.png")
 
 
-```
-## Error in eval(expr, envir, enclos): object 'params' not found
-```
+
+
+![percent of CNA since 2020 with of collection url]("figs/cna_affected/cnapct2020.affected.collectionURL.png")
+
+
+
+![uniq fields in collectionURL by CNA]("figs/cna_affected/cna_uniq.affected.collectionURL.png")
 
 ## affected.cpes
 
 
-```
-## Error in eval(expr, envir, enclos): object 'params' not found
-```
+
+![uniq fields in collectionURL by CNA]("figs/cna_affected/monpct.affected.cpes.png")
 
 
-```
-## Error in eval(expr, envir, enclos): object 'params' not found
-```
+
+![percent by cna for `curfield`](figs/cna_affected/cnapct_affected.cpes)
 
 
-```
-## Error in eval(expr, envir, enclos): object 'params' not found
-```
 
+![percent by cna of `curfield`](figs/cna_affected/cnapct_affected.cpes)
 
