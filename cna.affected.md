@@ -68,7 +68,7 @@ just that something in present. Again, the `containers.cna.affected.versions.sta
 
 
 
-![prod vend version](figs/cna_affected/monpct.prod_vend_version.png)
+![prod vend version](figs/cna_affected/monpct.prod_vend_version1.png)
 
 ## Which CNAs are published more complete VPV values? 
 
@@ -86,7 +86,7 @@ Take note just how many CNAs are across the bottom (or the lack of CNAs at the b
 
 
 
-![product vendor and version by month](figs/cna_affected/monpct.prod_vend_version.png)
+![product vendor and version by month](figs/cna_affected/monpct.prod_vend_version2.png)
 
 
 # collection URL

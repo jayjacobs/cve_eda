@@ -542,11 +542,11 @@ gg <- ggplot(toplot, aes(month, pct, color=colfill)) +
   labs(title = paste("Percent of Published CVEs with value in Vendor, Product and Version (all CNAs)")) +
   theme(plot.title = element_text(family=mainfont, face="italic", size=11))
 
-savepic(gg, here::here("figs", "cna_affected", "monpct.prod_vend_version"), 
+savepic(gg, here::here("figs", "cna_affected", "monpct.prod_vend_version1"), 
         height = 3.5, width = 7, open = FALSE, caption=TRUE, dpi=300)
 ```
 
-![prod vend version](figs/cna_affected/monpct.prod_vend_version.png)
+![prod vend version](figs/cna_affected/monpct.prod_vend_version1.png)
 
 ## Which CNAs are published more complete VPV values? 
 
@@ -636,11 +636,11 @@ gg <- ggplot(toplot, aes(month, pct, color=colfill)) +
   labs(title = paste("Percent of Published CVEs (excluding all MITRE CVEs) with\nvalue in Vendor, Product and Version (all CNAs)")) +
   theme(plot.title = element_text(family=mainfont, face="italic", size=11))
 
-savepic(gg, here::here("figs", "cna_affected", "monpct.prod_vend_version"), 
+savepic(gg, here::here("figs", "cna_affected", "monpct.prod_vend_version2"), 
         height = 3.5, width = 7, open = FALSE, caption=TRUE, dpi=300)
 ```
 
-![product vendor and version by month](figs/cna_affected/monpct.prod_vend_version.png)
+![product vendor and version by month](figs/cna_affected/monpct.prod_vend_version2.png)
 
 
 # collection URL
