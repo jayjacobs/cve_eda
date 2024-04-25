@@ -343,7 +343,7 @@ savepic(gg, here::here("figs", "cna_metrics", "cvss_by_cna"),
         height = 4, width = 7, open = FALSE, caption=TRUE, dpi=300) 
 
 ```
-![cvss_by_cna](figs/cna_metrics/cvss_by_cna)
+![cvss_by_cna](figs/cna_metrics/cvss_by_cna.png)
 
 
 ```{r}

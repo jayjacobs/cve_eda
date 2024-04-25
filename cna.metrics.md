@@ -28,7 +28,7 @@ output:
 This looks at the percent of CVEs with a CVSS record from each CNA and compares against the total number of CVEs from that CNA. 
 
 
-![cvss_by_cna](figs/cna_metrics/cvss_by_cna)
+![cvss_by_cna](figs/cna_metrics/cvss_by_cna.png)
 
 
 
