@@ -29,3 +29,8 @@ Individual documents will be created for individual sections of the data (eventu
 ![JSON fields found](figs/readme/json_field_counts.png)
 
 
+
+```
+## Error in cat(x, file = file, sep = c(rep.int(sep, ncolumns - 1), "\n"), : argument 1 (type 'list') cannot be handled by 'cat'
+```
+

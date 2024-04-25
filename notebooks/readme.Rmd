@@ -209,3 +209,15 @@ rez <- gtsave(gtable, here::here("figs", "readme", "json_field_counts.png"))
 ![JSON fields found](figs/readme/json_field_counts.png)
 
 
+```{r}
+for_csv <- varlist |> 
+  full_join(cve_cna_count, by=c("name" = "jsonfield")) |>
+  mutate(name = str_trunc(name, width=40, side="left")) |> 
+  select(`json_field` = name, 
+         `json_type` = type,
+         instances = n,
+         `cve_count` = cves,
+         `cna_count` = cnas)
+write(for_csv, here("cve_variable_list.csv"))
+```
+
