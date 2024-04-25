@@ -45,7 +45,7 @@ This looks at the percent of CVEs with a CVSS record from each CNA and compares 
 
 
 ```
-## Error in eval(expr, envir, enclos): object 'params' not found
+## Error in knitr::include_graphics(.): Cannot find the file(s): "figs/cna_metrics/cves_published_with_cvss_version.png"
 ```
 
 ![cves_published_with_cvss_version](figs/cna_metrics/cves_published_with_cvss_version.png)
@@ -53,7 +53,7 @@ This looks at the percent of CVEs with a CVSS record from each CNA and compares 
 
 
 ```
-## Error in eval(expr, envir, enclos): object 'params' not found
+## Error in knitr::include_graphics(.): Cannot find the file(s): "figs/cna_metrics/cves_published_with_cvss_version_no_mitre.png"
 ```
 
 ![cves_published_with_cvss_version_no_mitre](figs/cna_metrics/cves_published_with_cvss_version_no_mitre.png)
