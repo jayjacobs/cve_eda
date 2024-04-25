@@ -404,7 +404,80 @@ metrics <- raw_metrics %>%
 count_valid <- metrics %>% 
   filter(!is.na(vectorString)) %>% 
   left_join(tojoin, by="key_version") %>% 
-  mutate(valid = str_detect(vectorString, regex))
+  mutate(valid = str_detect(vectorString, regex)) %>% 
+  count(cvss_vector_is_valid = valid)
+
+count_valid
+```
+
+
+```{r}
+
+toplot <- metrics %>% 
+  filter(!is.na(vectorString)) %>% 
+  mutate(month = floor_date(published, unit="month")) %>%
+  filter(month >= as.Date("2017-01-01")) %>% 
+  distinct(cve, key_version, month) %>% 
+  mutate(one = 1) %>% 
+  spread(key_version, one, fill=0) %>% 
+  summarize(.by=month, `2.0` = sum(`2.0`),
+            `3.0` = sum(`3.0`),
+            `3.1` = sum(`3.1`)) %>% 
+  gather(cat, val, -month) %>% 
+  left_join(cvemonth, by="month") %>%
+  mutate(pct = val/n)
+
+gg <- ggplot(toplot, aes(month,pct, group=cat, color=cat, label=cat)) +
+  geom_line(alpha=1/4) +
+  geom_point(alpha=1/2) +
+  geomtextpath::geom_labelsmooth(size=8/.pt, family=mainfont, textsmoothing = 50) +
+  scale_color_manual(values=c("2.0"=tab("red"), "3.0"=tab("seablue"), 
+                              "3.1"=tab("blue"), "CVEs Published" = "gray60")) + 
+  theme(legend.position = "none") +
+  scale_y_continuous("Percent of Monthly Published CVEs", label=label_percent(1), expand=c(0,0))
+savepic(gg, here::here("figs", params$img_slug, "cves_published_with_cvss_version"), 
+        height = 3, width = 7, open = FALSE, caption=TRUE, dpi=300) %>%
+  knitr::include_graphics()
+```
+
+![cves_published_with_cvss_version](figs/cna_metrics/cves_published_with_cvss_version.png)
+
+
+```{r}
+cvemonth_nomitre <- cves %>% 
+  mutate(published = as.Date(str_extract(cveMetadata.datePublished, "\\d{4}-\\d{2}-\\d{2}"))) %>% 
+  filter(cveMetadata.assignerShortName != "mitre") %>% 
+  mutate(month = floor_date(published, unit="month")) %>% 
+  count(month)
+
+toplot <- metrics %>% 
+  filter(cna != "mitre") %>% 
+  filter(!is.na(vectorString)) %>% 
+  mutate(month = floor_date(published, unit="month")) %>%
+  filter(month >= as.Date("2017-01-01")) %>% 
+  distinct(cve, key_version, month) %>% 
+  mutate(one = 1) %>% 
+  spread(key_version, one, fill=0) %>% 
+  summarize(.by=month, `2.0` = sum(`2.0`),
+            `3.0` = sum(`3.0`),
+            `3.1` = sum(`3.1`)) %>% 
+  gather(cat, val, -month) %>% 
+  left_join(cvemonth_nomitre, by="month") %>%
+  mutate(pct = val/n)
+
+gg <- ggplot(toplot, aes(month,pct, group=cat, color=cat, label=cat)) +
+  geom_line(alpha=1/10) +
+  geom_point(alpha=1/2) +
+  geomtextpath::geom_labelsmooth(size=8/.pt, family=mainfont, textsmoothing = 50, hjust=0.6) +
+  scale_color_manual(values=c("2.0"=tab("red"), "3.0"=tab("seablue"), 
+                              "3.1"=tab("blue"), "CVEs Published" = "gray60")) + 
+  theme(legend.position = "none") +
+  scale_y_continuous("Percent of Monthly Published CVEs", label=label_percent(1), expand=c(0,0))
+savepic(gg, here::here("figs", params$img_slug, "cves_published_with_cvss_version_no_mitre"), 
+        height = 3, width = 7, open = FALSE, caption=TRUE, dpi=300) %>%
+  knitr::include_graphics()
 
 ```
+
+![cves_published_with_cvss_version_no_mitre](figs/cna_metrics/cves_published_with_cvss_version_no_mitre.png)
 
